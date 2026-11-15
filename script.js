@@ -1,7 +1,7 @@
 
 // ========================================
 // HANIBAL DISCIPLINE
-// Version 8.0 - New Supabase Database
+// Version 9.0 - Improved Mission System
 // ========================================
 
 const defaultTasks = [
@@ -18,7 +18,8 @@ let currentUser = null;
 let tasks = [];
 let xp = 0;
 let streak = 0;
-let loading = false;
+let loadingUserId = null;
+let loadingPromise = null;
 
 // ========================================
 // MESSAGES AND SCREENS
@@ -60,28 +61,22 @@ async function signUp() {
   showMessage("Creating your account...");
 
   try {
-    const result = await Promise.race([
-      supabaseClient.auth.signUp({ email, password }),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(
-          new Error("Connection timed out. Check your internet and try again.")
-        ), 20000)
-      )
-    ]);
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password
+    });
 
-    if (result.error) {
-      showMessage("Sign-up error: " + result.error.message);
-      return;
-    }
+    if (error) throw error;
 
-    if (result.data.session) {
+    if (data.session) {
       showMessage("Account created successfully!");
+      await handleUser(data.session.user);
     } else {
-      showMessage("Account created. Please log in.");
+      showMessage("Account created! Please log in.");
     }
   } catch (error) {
-    console.error("Sign-up error:", error);
-    showMessage("Error: " + error.message);
+    console.error(error);
+    showMessage("Sign-up error: " + error.message);
   }
 }
 
@@ -101,17 +96,18 @@ async function signIn() {
   showMessage("Logging in...");
 
   try {
-    const { error } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
 
-    if (error) {
-      showMessage("Login error: " + error.message);
-    }
+    if (error) throw error;
+
+    await handleUser(data.user);
   } catch (error) {
-    console.error("Login error:", error);
-    showMessage("Connection error: " + error.message);
+    console.error(error);
+    showMessage("Login error: " + error.message);
   }
 }
 
@@ -122,12 +118,15 @@ async function signIn() {
 async function signOut() {
   try {
     const { error } = await supabaseClient.auth.signOut();
+    if (error) throw error;
 
-    if (error) {
-      alert(error.message);
-    }
+    currentUser = null;
+    tasks = [];
+    xp = 0;
+    streak = 0;
+    showLogin();
   } catch (error) {
-    alert("Could not log out: " + error.message);
+    alert("Logout error: " + error.message);
   }
 }
 
@@ -136,77 +135,111 @@ async function signOut() {
 // ========================================
 
 async function loadUserData() {
-  if (!currentUser || loading) return;
+  if (!currentUser) return;
 
-  loading = true;
-  showMessage("Loading your progress...");
+  const userId = currentUser.id;
 
-  try {
-    const userId = currentUser.id;
+  if (loadingUserId === userId && loadingPromise) {
+    return loadingPromise;
+  }
 
-    // Load profile
-    const { data: profile, error: profileError } =
-      await supabaseClient
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
+  loadingUserId = userId;
 
-    if (profileError) throw profileError;
+  loadingPromise = (async () => {
+    try {
+      // Load profile separately.
+      // A profile error must not stop mission loading.
 
-    xp = Number(profile.xp) || 0;
-    streak = Number(profile.streak) || 0;
+      const { data: profile, error: profileError } =
+        await supabaseClient
+          .from("profiles")
+          .select("xp, streak")
+          .eq("id", userId)
+          .maybeSingle();
 
-    // Load this user's missions
-    const { data: missions, error: missionError } =
-      await supabaseClient
-        .from("missions")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: true });
+      if (profileError) {
+        console.error("Profile loading error:", profileError);
+      }
 
-    if (missionError) throw missionError;
+      xp = Number(profile?.xp) || 0;
+      streak = Number(profile?.streak) || 0;
 
-    tasks = (missions || []).map(mission => ({
-      id: mission.id,
-      name: mission.title,
-      completed: mission.completed
-    }));
+      // Load missions
 
-    // Add default missions for a new account
-    if (tasks.length === 0) {
-      for (const name of defaultTasks) {
+      const { data: missions, error: missionError } =
+        await supabaseClient
+          .from("missions")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: true });
+
+      if (missionError) throw missionError;
+
+      tasks = (missions || []).map(mission => ({
+        id: mission.id,
+        name: mission.title,
+        completed: mission.completed
+      }));
+
+      // Create default missions for new accounts
+
+      if (tasks.length === 0) {
+        const newMissions = defaultTasks.map(name => ({
+          user_id: userId,
+          title: name,
+          completed: false
+        }));
+
         const { data, error } = await supabaseClient
           .from("missions")
-          .insert({
-            user_id: userId,
-            title: name,
-            completed: false
-          })
-          .select()
-          .single();
+          .insert(newMissions)
+          .select();
 
         if (error) throw error;
 
-        tasks.push({
-          id: data.id,
-          name: data.title,
-          completed: data.completed
-        });
+        tasks = (data || []).map(mission => ({
+          id: mission.id,
+          name: mission.title,
+          completed: mission.completed
+        }));
+      }
+
+      if (!currentUser || currentUser.id !== userId) return;
+
+      updateDashboard();
+      showMessage("Your missions are ready!");
+
+    } catch (error) {
+      console.error("Data loading error:", error);
+      alert("Could not load missions: " + error.message);
+    } finally {
+      if (loadingUserId === userId) {
+        loadingUserId = null;
+        loadingPromise = null;
       }
     }
+  })();
 
-    if (!currentUser || currentUser.id !== userId) return;
+  return loadingPromise;
+}
 
-    updateDashboard();
-    showMessage("Your progress is ready!");
+// ========================================
+// HANDLE USER
+// ========================================
 
-  } catch (error) {
-    console.error("Loading error:", error);
-    showMessage("Could not load your data: " + error.message);
-  } finally {
-    loading = false;
+async function handleUser(user) {
+  currentUser = user;
+
+  if (!user) {
+    tasks = [];
+    xp = 0;
+    streak = 0;
+    showLogin();
+    return;
   }
+
+  showDashboard();
+  await loadUserData();
 }
 
 // ========================================
@@ -254,7 +287,9 @@ function renderTasks() {
     checkbox.type = "checkbox";
     checkbox.checked = task.completed;
 
-    checkbox.onchange = () => toggleTask(task.id);
+    checkbox.addEventListener("change", () => {
+      toggleTask(task.id);
+    });
 
     const name = document.createElement("span");
     name.textContent = task.name;
@@ -275,32 +310,36 @@ async function toggleTask(id) {
   const task = tasks.find(item => item.id === id);
   if (!task) return;
 
-  const previousState = task.completed;
-  const newState = !previousState;
+  const newState = !task.completed;
   const newXP = Math.max(0, xp + (newState ? 10 : -10));
 
   try {
-    const { error: missionError } = await supabaseClient
+    const { error } = await supabaseClient
       .from("missions")
       .update({ completed: newState })
       .eq("id", id)
       .eq("user_id", currentUser.id);
 
-    if (missionError) throw missionError;
-
-    const { error: profileError } = await supabaseClient
-      .from("profiles")
-      .update({ xp: newXP })
-      .eq("id", currentUser.id);
-
-    if (profileError) throw profileError;
+    if (error) throw error;
 
     task.completed = newState;
     xp = newXP;
 
     updateDashboard();
+
+    const { error: profileError } = await supabaseClient
+      .from("profiles")
+      .update({ xp: xp })
+      .eq("id", currentUser.id);
+
+    if (profileError) {
+      console.error("XP saving error:", profileError);
+      alert("Mission saved, but XP could not be saved: " +
+        profileError.message);
+    }
+
   } catch (error) {
-    console.error("Mission update error:", error);
+    console.error(error);
     alert("Could not save mission: " + error.message);
   }
 }
@@ -310,7 +349,10 @@ async function toggleTask(id) {
 // ========================================
 
 async function addTask() {
-  if (!currentUser) return;
+  if (!currentUser) {
+    alert("Please log in first.");
+    return;
+  }
 
   const input = document.getElementById("task-input");
   const name = input.value.trim();
@@ -359,39 +401,22 @@ function comingSoon() {
 }
 
 // ========================================
-// AUTHENTICATION SESSION
-// ========================================
-
-async function handleUser(user) {
-  currentUser = user;
-
-  if (user) {
-    tasks = [];
-    xp = 0;
-    streak = 0;
-
-    showDashboard();
-    await loadUserData();
-  } else {
-    tasks = [];
-    xp = 0;
-    streak = 0;
-
-    showLogin();
-  }
-}
-
-// ========================================
 // START APPLICATION
 // ========================================
 
 async function startApp() {
   showLogin();
-  showMessage("Checking your account...");
+
+  const today = document.getElementById("today");
+  if (today) today.textContent = new Date().toDateString();
 
   supabaseClient.auth.onAuthStateChange((event, session) => {
     Promise.resolve().then(() => {
-      handleUser(session ? session.user : null);
+      if (event === "SIGNED_OUT") {
+        handleUser(null);
+      } else if (event === "SIGNED_IN") {
+        handleUser(session ? session.user : null);
+      }
     });
   });
 
@@ -406,11 +431,8 @@ async function startApp() {
     console.error("Startup error:", error);
     showMessage("Could not connect: " + error.message);
   }
-
-  document.getElementById("today").textContent =
-    new Date().toDateString();
 }
 
 startApp();
 
-console.log("HANIBAL DISCIPLINE Version 8.0 is ready!");
+console.log("HANIBAL DISCIPLINE Version 9.0 is ready!");
