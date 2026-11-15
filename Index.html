@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080f20">
+  <title>HANIBAL DISCIPLINE</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header>
+    <h1>HANIBAL<span>.</span></h1>
+    <p>DISCIPLINE IS YOUR POWER</p>
+  </header>
+
+  <!-- ACCOUNT SYSTEM -->
+  <section class="panel" id="auth-section">
+    <h2>YOUR ACCOUNT</h2>
+    <p>Create an account or log in.</p>
+
+    <input
+      type="email"
+      id="email"
+      placeholder="Your email address"
+      autocomplete="email"
+    >
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Your password"
+      autocomplete="current-password"
+    >
+
+    <button type="button" onclick="signUp()">Create Account</button>
+    <button type="button" onclick="signIn()">Log In</button>
+
+    <p id="auth-message"></p>
+  </section>
+
+  <!-- MAIN DASHBOARD -->
+  <div id="app-content" style="display:none;">
+
+    <main>
+
+      <section class="welcome">
+        <p id="today">YOUR DAILY JOURNEY</p>
+        <h2>Welcome, Hanibal.</h2>
+        <p>Build yourself. Every single day.</p>
+      </section>
+
+      <section class="stats">
+        <div class="stat">
+          <h3 id="xp">0</h3>
+          <p>TOTAL XP</p>
+        </div>
+
+        <div class="stat">
+          <h3 id="streak">0 🔥</h3>
+          <p>STREAK</p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Today's Progress</h2>
+        <h3 id="percent">0%</h3>
+        <div class="progress-bg">
+          <div id="progress-bar"></div>
+        </div>
+        <p id="count">0 missions completed</p>
+      </section>
+
+      <section class="panel">
+        <h2>MY DAILY MISSIONS</h2>
+        <div id="task-list"></div>
+
+        <input
+          id="task-input"
+          type="text"
+          placeholder="Write a new mission..."
+        >
+
+        <button onclick="addTask()">+ Add Mission</button>
+      </section>
+
+      <section class="panel">
+        <h2>MY COMMUNITY</h2>
+        <p>Family and friends will meet here.</p>
+        <button onclick="comingSoon()">Community Coming Soon</button>
+      </section>
+
+      <section class="panel">
+        <h2>DAILY WISDOM</h2>
+        <p class="quote">
+          "Discipline is choosing what you want most
+          over what you want now."
+        </p>
+      </section>
+
+      <section class="panel">
+        <button type="button" onclick="signOut()">Log Out</button>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    HANIBAL DISCIPLINE © 2026
+    <p>BUILD YOURSELF.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>

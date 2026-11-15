@@ -1,0 +1,189 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #080f20;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  max-width: 650px;
+  margin: auto;
+}
+
+header {
+  margin: 15px 0 30px;
+}
+
+header h1 {
+  color: #e0b84e;
+  font-size: 28px;
+  letter-spacing: 3px;
+}
+
+header h1 span {
+  color: white;
+}
+
+header p {
+  color: #8994a9;
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-top: 5px;
+}
+
+.welcome {
+  background: #17243b;
+  padding: 23px;
+  border-radius: 16px;
+  margin-bottom: 18px;
+  border: 1px solid #34435c;
+}
+
+.welcome h2 {
+  margin: 12px 0;
+  font-size: 23px;
+}
+
+.welcome p {
+  color: #aab6c9;
+  font-size: 13px;
+}
+
+#today {
+  color: #e0b84e;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stat {
+  background: #111d32;
+  border: 1px solid #26344b;
+  padding: 20px;
+  border-radius: 14px;
+}
+
+.stat h3 {
+  color: #e0b84e;
+  font-size: 27px;
+  margin-bottom: 7px;
+}
+
+.stat p {
+  color: #8994a9;
+  font-size: 11px;
+}
+
+.panel {
+  background: #111d32;
+  border: 1px solid #26344b;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 17px;
+}
+
+.panel h2 {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+#percent {
+  color: #e0b84e;
+}
+
+.progress-bg {
+  background: #26344b;
+  height: 10px;
+  border-radius: 20px;
+  margin: 13px 0;
+  overflow: hidden;
+}
+
+#progress-bar {
+  width: 0%;
+  height: 100%;
+  background: #e0b84e;
+  transition: .3s;
+}
+
+#count {
+  color: #8994a9;
+  font-size: 12px;
+}
+
+input {
+  width: 100%;
+  background: #17243b;
+  border: 1px solid #34435c;
+  color: white;
+  padding: 14px;
+  border-radius: 9px;
+  margin: 10px 0;
+  outline: none;
+}
+
+button {
+  background: #e0b84e;
+  color: #080f20;
+  border: none;
+  border-radius: 9px;
+  padding: 13px 17px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(.97);
+}
+
+#task-list {
+  margin-bottom: 10px;
+}
+
+.task {
+  background: #17243b;
+  border-radius: 9px;
+  padding: 13px;
+  margin: 9px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.task input {
+  width: 18px;
+  margin: 0;
+  accent-color: #e0b84e;
+}
+
+.task span {
+  flex: 1;
+  font-size: 13px;
+}
+
+.task.done span {
+  text-decoration: line-through;
+  color: #8994a9;
+}
+
+.quote {
+  color: #d4bd7c;
+  line-height: 1.7;
+  font-style: italic;
+}
+
+footer {
+  text-align: center;
+  color: #8994a9;
+  font-size: 11px;
+  padding: 20px;
+  line-height: 2;
+}
