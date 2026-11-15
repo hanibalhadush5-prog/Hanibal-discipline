@@ -1,0 +1,12 @@
+
+{
+  "name": "HANIBAL DISCIPLINE",
+  "short_name": "HANIBAL",
+  "description": "Build yourself. Every single day.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#080f20",
+  "theme_color": "#080f20",
+  "orientation": "portrait"
+}
