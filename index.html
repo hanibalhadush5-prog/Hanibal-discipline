@@ -2,120 +2,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="./manifest.json">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080f20">
-  <title>HANIBAL DISCIPLINE</title>
-  <link rel="stylesheet" href="./style.css">
+  <title>HANIBAL DISCIPLINE V10</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-  <header>
-    <h1>HANIBAL<span>.</span></h1>
-    <p>DISCIPLINE IS YOUR POWER</p>
+  <header class="app-header">
+    <div>
+      <h1>HANIBAL<span>.</span></h1>
+      <p>DISCIPLINE IS YOUR POWER</p>
+    </div>
+    <button id="logout-btn" class="secondary-btn" onclick="signOut()">Log Out</button>
   </header>
 
-  <!-- ACCOUNT SYSTEM -->
-  <section class="panel" id="auth-section">
-    <h2>YOUR ACCOUNT</h2>
-    <p>Create an account or log in.</p>
-
-    <input
-      type="email"
-      id="email"
-      placeholder="Your email address"
-      autocomplete="email"
-    >
-
-    <input
-      type="password"
-      id="password"
-      placeholder="Your password"
-      autocomplete="current-password"
-    >
-
-    <button type="button" onclick="signUp()">Create Account</button>
-    <button type="button" onclick="signIn()">Log In</button>
-
-    <p id="auth-message"></p>
+  <!-- LOGIN -->
+  <section id="auth-section" class="panel auth-panel">
+    <h2>Welcome Back</h2>
+    <p>Sign in to continue your journey.</p>
+    <label for="email">Email</label>
+    <input id="email" type="email" placeholder="Your email">
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="Your password">
+    <div class="button-row">
+      <button onclick="signIn()">Log In</button>
+      <button class="secondary-btn" onclick="signUp()">Create Account</button>
+    </div>
+    <p id="auth-message" role="status"></p>
   </section>
 
-  <!-- MAIN DASHBOARD -->
-  <div id="app-content" style="display:none;">
+  <!-- MAIN APP -->
+  <main id="app-content" hidden>
 
-    <main>
+    <section class="welcome panel">
+      <p id="today"></p>
+      <h2>Welcome, Hanibal.</h2>
+      <p>Build your future one day at a time.</p>
+    </section>
 
-      <section class="welcome">
-        <p id="today">YOUR DAILY JOURNEY</p>
-        <h2>Welcome, Hanibal.</h2>
-        <p>Build yourself. Every single day.</p>
-      </section>
+    <!-- DASHBOARD NAVIGATION -->
+    <nav class="nav-grid">
+      <button onclick="showSection('dashboard-section')">Dashboard</button>
+      <button onclick="showSection('planning-section')">Planning</button>
+      <button onclick="showSection('calendar-section')">Calendar</button>
+      <button onclick="showSection('reminders-section')">Reminders</button>
+      <button onclick="showSection('kpi-section')">KPI Goals</button>
+      <button onclick="showSection('reports-section')">Reports</button>
+      <button onclick="showSection('focus-section')">Focus</button>
+    </nav>
 
-      <section class="stats">
-        <div class="stat">
-          <h3 id="xp">0</h3>
-          <p>TOTAL XP</p>
+    <!-- DASHBOARD -->
+    <section id="dashboard-section" class="app-section">
+      <div class="stats">
+        <div class="stat panel">
+          <span>Experience</span>
+          <h2 id="xp">0 XP</h2>
         </div>
-
-        <div class="stat">
-          <h3 id="streak">0 🔥</h3>
-          <p>STREAK</p>
+        <div class="stat panel">
+          <span>Streak</span>
+          <h2 id="streak">0 Days</h2>
         </div>
-      </section>
+      </div>
 
-      <section class="panel">
-        <h2>Today's Progress</h2>
-        <h3 id="percent">0%</h3>
+      <div class="panel">
+        <h3>Daily Performance</h3>
         <div class="progress-bg">
-          <div id="progress-bar"></div>
+          <div id="progress-bar" class="progress-bar"></div>
         </div>
-        <p id="count">0 missions completed</p>
-      </section>
+        <p><strong id="percent">0%</strong> completed</p>
+        <p id="count">0 of 0 missions completed</p>
+      </div>
 
-      <section class="panel">
-        <h2>MY DAILY MISSIONS</h2>
+      <div class="panel">
+        <h3>Daily Missions</h3>
         <div id="task-list"></div>
+        <div class="input-row">
+          <input id="task-input" type="text" placeholder="Add a new mission">
+          <button onclick="addTask()">Add</button>
+        </div>
+      </div>
 
-        <input
-          id="task-input"
-          type="text"
-          placeholder="Write a new mission..."
-        >
+      <div class="panel">
+        <h3>Daily Wisdom</h3>
+        <p class="quote">"Great things are done by a series of small things brought together."</p>
+        <p>— Vincent van Gogh</p>
+      </div>
+    </section>
 
-        <button onclick="addTask()">+ Add Mission</button>
-      </section>
+    <!-- PLANNING -->
+    <section id="planning-section" class="app-section" hidden>
+      <div class="panel">
+        <h2>My Plans</h2>
+        <p>Organize your day and priorities.</p>
+        <input id="plan-title" placeholder="Plan title">
+        <textarea id="plan-details" placeholder="Plan details"></textarea>
+        <label for="plan-date">Plan date</label>
+        <input id="plan-date" type="date">
+        <label for="plan-priority">Priority</label>
+        <select id="plan-priority">
+          <option>Low</option>
+          <option selected>Medium</option>
+          <option>High</option>
+        </select>
+        <button onclick="addPlan()">Save Plan</button>
+      </div>
+      <div class="panel">
+        <h3>My Schedule</h3>
+        <div id="plans-list"></div>
+      </div>
+    </section>
 
-      <section class="panel">
-        <h2>MY COMMUNITY</h2>
-        <p>Family and friends will meet here.</p>
-        <button onclick="comingSoon()">Community Coming Soon</button>
-      </section>
+    <!-- CALENDAR -->
+    <section id="calendar-section" class="app-section" hidden>
+      <div class="panel">
+        <h2>Calendar & Events</h2>
+        <input id="event-title" placeholder="Event title">
+        <textarea id="event-details" placeholder="Event details"></textarea>
+        <label for="event-date">Date</label>
+        <input id="event-date" type="date">
+        <label for="event-start">Start time</label>
+        <input id="event-start" type="time">
+        <label for="event-end">End time</label>
+        <input id="event-end" type="time">
+        <button onclick="addEvent()">Add Event</button>
+      </div>
+      <div class="panel">
+        <h3>Upcoming Events</h3>
+        <div id="events-list"></div>
+      </div>
+    </section>
 
-      <section class="panel">
-        <h2>DAILY WISDOM</h2>
-        <p class="quote">
-          "Discipline is choosing what you want most
-          over what you want now."
-        </p>
-      </section>
+    <!-- REMINDERS -->
+    <section id="reminders-section" class="app-section" hidden>
+      <div class="panel">
+        <h2>Reminders</h2>
+        <input id="reminder-title" placeholder="Reminder title">
+        <textarea id="reminder-notes" placeholder="Notes (optional)"></textarea>
+        <label for="reminder-time">Reminder date and time</label>
+        <input id="reminder-time" type="datetime-local">
+        <button onclick="addReminder()">Create Reminder</button>
+        <button class="secondary-btn" onclick="enableNotifications()">Enable Notifications</button>
+        <p class="small-note">Reminders work while this website is open. Background alerts are not guaranteed.</p>
+      </div>
+      <div class="panel">
+        <h3>My Reminders</h3>
+        <div id="reminders-list"></div>
+      </div>
+    </section>
 
-      <section class="panel">
-        <button type="button" onclick="signOut()">Log Out</button>
-      </section>
+    <!-- KPI -->
+    <section id="kpi-section" class="app-section" hidden>
+      <div class="panel">
+        <h2>Performance Goals</h2>
+        <p>Set measurable goals and track your progress.</p>
+        <input id="kpi-title" placeholder="Goal name">
+        <input id="kpi-target" type="number" min="1" placeholder="Target value">
+        <input id="kpi-current" type="number" min="0" placeholder="Current progress">
+        <input id="kpi-unit" placeholder="Unit (e.g. hours, books, tasks)">
+        <label for="kpi-deadline">Deadline</label>
+        <input id="kpi-deadline" type="date">
+        <button onclick="addKPI()">Create Goal</button>
+      </div>
+      <div class="panel">
+        <h3>My Goals</h3>
+        <div id="kpi-list"></div>
+      </div>
+    </section>
 
-    </main>
-  </div>
+    <!-- REPORTS -->
+    <section id="reports-section" class="app-section" hidden>
+      <div class="panel">
+        <h2>Performance Reports</h2>
+        <p>Review your recorded activity and progress.</p>
+        <button onclick="loadReports()">Refresh Reports</button>
+        <div id="reports-content"></div>
+      </div>
+    </section>
 
-  <footer>
-    HANIBAL DISCIPLINE © 2026
-    <p>BUILD YOURSELF.</p>
-  </footer>
+    <!-- FOCUS -->
+    <section id="focus-section" class="app-section" hidden>
+      <div class="panel">
+        <h2>Focus Room</h2>
+        <p>Give one important task your full attention.</p>
+        <label for="focus-duration">Session length (minutes)</label>
+        <input id="focus-duration" type="number" min="1" max="180" value="25">
+        <h2 id="focus-timer">25:00</h2>
+        <button id="focus-start" onclick="startFocus()">Start Focus</button>
+        <button class="secondary-btn" onclick="pauseFocus()">Pause</button>
+        <button class="secondary-btn" onclick="resetFocus()">Reset</button>
+        <p id="focus-message"></p>
+      </div>
+    </section>
+
+    <footer>
+      <p>HANIBAL DISCIPLINE V10.0</p>
+      <p>Discipline today. Success tomorrow.</p>
+    </footer>
+
+  </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   <script src="script.js"></script>
-
 </body>
 </html>
